@@ -1,22 +1,25 @@
 import time
 from collections.abc import Callable, Iterable
 from contextlib import AbstractContextManager, contextmanager
-from typing import overload
+from typing import ParamSpec, TypeVar, overload
 
 from .human_count import HumanCount
 from .human_duration import HumanDuration
 from .human_throughput import HumanThroughput
 
+T = TypeVar("T")
+P = ParamSpec("P")
+
 
 @overload
-def about_time(func: Callable, *args, **kwargs) -> "HandleResult": ...
+def about_time(func: Callable[P, T], *args, **kwargs) -> "HandleResult[T]": ...
 @overload
-def about_time(it: Iterable) -> "HandleStats": ...
+def about_time(it: Iterable[T]) -> "HandleStats": ...
 @overload
 def about_time() -> "AbstractContextManager[Handle]": ...
 
 
-def about_time(func_or_it=None, *args, **kwargs):
+def about_time(func_or_it: Callable[P, T] | Iterable[T] | None=None, *args, **kwargs):
     """Measure timing and throughput of code blocks, with beautiful
     human friendly representations.
 
@@ -68,7 +71,7 @@ def about_time(func_or_it=None, *args, **kwargs):
 
 
 @contextmanager
-def _context_timing(timings, handle: "Handle"=None):
+def _context_timing(timings, handle: "Handle" = None):
     timings[0] = time.perf_counter()
     yield handle
     timings[1] = time.perf_counter()
@@ -101,8 +104,8 @@ class Handle:
         return HumanDuration(self.duration)
 
 
-class HandleResult(Handle):
-    def __init__(self, timings, result):
+class HandleResult[T](Handle):
+    def __init__(self, timings, result: T):
         super().__init__(timings)
         self.__result = result
 
