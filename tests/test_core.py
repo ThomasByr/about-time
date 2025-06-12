@@ -17,7 +17,7 @@ def rand_offset():
 
 @pytest.fixture
 def mock_timer():
-    with mock.patch('time.perf_counter') as mt:
+    with mock.patch("time.perf_counter") as mt:
         yield mt
 
 
@@ -51,28 +51,34 @@ def test_duration_counter_throughput_mode(rand_offset, mock_timer):
     assert at.duration == pytest.approx(end - start)
 
 
-@pytest.mark.parametrize('call, args, kwargs, expected', [
-    (lambda: 123, (), {}, 123),
-    (str, (), {}, ''),
-    (list, (), {}, []),
-    (lambda x: x + 1, (123,), {}, 124),
-    (str, ('cool',), {}, 'cool'),
-    (list, ((1, 2, 3),), {}, [1, 2, 3]),
-    (lambda x: x + 1, (), {'x': 123}, 124),
-])
+@pytest.mark.parametrize(
+    "call, args, kwargs, expected",
+    [
+        (lambda: 123, (), {}, 123),
+        (str, (), {}, ""),
+        (list, (), {}, []),
+        (lambda x: x + 1, (123,), {}, 124),
+        (str, ("cool",), {}, "cool"),
+        (list, ((1, 2, 3),), {}, [1, 2, 3]),
+        (lambda x: x + 1, (), {"x": 123}, 124),
+    ],
+)
 def test_callable_mode_result(call, args, kwargs, expected):
     at = about_time(call, *args, **kwargs)
     assert at.result == expected
 
 
-@pytest.mark.parametrize('it', [
-    [],
-    [1, 2, 3],
-    range(0),
-    range(12),
-    'string',
-    (x ** 2 for x in range(8)),
-])
+@pytest.mark.parametrize(
+    "it",
+    [
+        [],
+        [1, 2, 3],
+        range(0),
+        range(12),
+        "string",
+        (x**2 for x in range(8)),
+    ],
+)
 def test_counter_throughput_mode(it, rand_offset, mock_timer):
     start, end = 1.4 + rand_offset, 2.65 + rand_offset
     mock_timer.side_effect = chain((start,), repeat(end))
@@ -90,15 +96,18 @@ def test_counter_throughput_mode(it, rand_offset, mock_timer):
     assert at.throughput == pytest.approx(i / 1.25)
 
 
-@pytest.mark.parametrize('field', [
-    'result',
-    'count',
-    'count_human',
-    'count_human_as',
-    'throughput',
-    'throughput_human',
-    'throughput_human_as',
-])
+@pytest.mark.parametrize(
+    "field",
+    [
+        "result",
+        "count",
+        "count_human",
+        "count_human_as",
+        "throughput",
+        "throughput_human",
+        "throughput_human_as",
+    ],
+)
 def test_context_manager_mode_dont_have_field(field):
     with about_time() as at:
         pass
@@ -107,14 +116,10 @@ def test_context_manager_mode_dont_have_field(field):
         getattr(at, field)
 
 
-@pytest.mark.parametrize('field', [
-    'count',
-    'count_human',
-    'count_human_as',
-    'throughput',
-    'throughput_human',
-    'throughput_human_as',
-])
+@pytest.mark.parametrize(
+    "field",
+    ["count", "count_human", "count_human_as", "throughput", "throughput_human", "throughput_human_as"],
+)
 def test_callable_mode_dont_have_field(field):
     at = about_time(lambda: 1)
 
@@ -122,9 +127,7 @@ def test_callable_mode_dont_have_field(field):
         getattr(at, field)
 
 
-@pytest.mark.parametrize('field', [
-    'result',
-])
+@pytest.mark.parametrize("field", ["result"])
 def test_counter_throughput_mode_dont_have_field(field):
     at = about_time(range(2))
 
@@ -132,13 +135,7 @@ def test_counter_throughput_mode_dont_have_field(field):
         getattr(at, field)
 
 
-@pytest.mark.parametrize('value', [
-    123,
-    .1,
-    object(),
-    datetime.now(),
-    Decimal(),
-])
+@pytest.mark.parametrize("value", [123, 0.1, object(), datetime.now(), Decimal()])
 def test_wrong_params_must_complain(value):
     with pytest.raises(UserWarning):
         about_time(value)

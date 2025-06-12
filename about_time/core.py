@@ -1,9 +1,19 @@
 import time
-from contextlib import contextmanager
+from collections.abc import Callable, Iterable
+from contextlib import AbstractContextManager, contextmanager
+from typing import overload
 
 from .human_count import HumanCount
 from .human_duration import HumanDuration
 from .human_throughput import HumanThroughput
+
+
+@overload
+def about_time(func: Callable, *args, **kwargs) -> "HandleResult": ...
+@overload
+def about_time(it: Iterable) -> "HandleStats": ...
+@overload
+def about_time() -> "AbstractContextManager[Handle]": ...
 
 
 def about_time(func_or_it=None, *args, **kwargs):
@@ -45,7 +55,7 @@ def about_time(func_or_it=None, *args, **kwargs):
     try:
         it = iter(func_or_it)
     except TypeError:
-        raise UserWarning('param should be callable or iterable.')
+        raise UserWarning("param should be callable or iterable.")  # noqa: B904
 
     # use as a counter/throughput iterator.
     def it_closure():
@@ -58,13 +68,13 @@ def about_time(func_or_it=None, *args, **kwargs):
 
 
 @contextmanager
-def _context_timing(timings, handle=None):
+def _context_timing(timings, handle: "Handle"=None):
     timings[0] = time.perf_counter()
     yield handle
     timings[1] = time.perf_counter()
 
 
-class Handle(object):
+class Handle:
     def __init__(self, timings):
         self.__timings = timings
 
@@ -93,7 +103,7 @@ class Handle(object):
 
 class HandleResult(Handle):
     def __init__(self, timings, result):
-        super(HandleResult, self).__init__(timings)
+        super().__init__(timings)
         self.__result = result
 
     @property
@@ -109,7 +119,7 @@ class HandleResult(Handle):
 
 class HandleStats(Handle):
     def __init__(self, timings, it_closure):
-        super(HandleStats, self).__init__(timings)
+        super().__init__(timings)
         self.__it = it_closure
 
     def __iter__(self):
@@ -135,7 +145,7 @@ class HandleStats(Handle):
             the human representation.
 
         """
-        return self.count_human_as('')
+        return self.count_human_as("")
 
     def count_human_as(self, unit: str) -> HumanCount:
         """Return a beautiful representation of the current iteration count.
@@ -162,7 +172,7 @@ class HandleStats(Handle):
         try:
             return self.count / self.duration
         except ZeroDivisionError:  # pragma: no cover
-            return float('nan')
+            return float("nan")
 
     @property
     def throughput_human(self) -> HumanThroughput:
@@ -173,7 +183,7 @@ class HandleStats(Handle):
             the human representation.
 
         """
-        return self.throughput_human_as('')
+        return self.throughput_human_as("")
 
     def throughput_human_as(self, unit: str) -> HumanThroughput:
         """Return a beautiful representation of the current throughput.

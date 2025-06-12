@@ -1,5 +1,6 @@
 # Features modeled after my Rust lib https://crates.io/crates/human-repr
 
+
 class Features:
     def __init__(self):
         self._feature_space = False
@@ -33,7 +34,7 @@ class Features:
 
 
 def conv_space(space: bool) -> str:
-    return {False: '', True: ' '}[space]
+    return {False: "", True: " "}[space]
 
 
 FEATURES = Features()

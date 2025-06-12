@@ -1,34 +1,26 @@
-.PHONY: all install clean build release test ptw
-
-# coverage related
-SRC = about_time
-COV = --cov=$(SRC) --cov-branch --cov-report=term-missing
-
-all:
-	@grep -E "^\w+:" makefile | cut -d: -f1
-
-install:
-	pip install -r requirements/dev.txt -r requirements/test.txt -e .
-
-clean: clean-build clean-pyc
-
-clean-build:
-	rm -rf build dist
-
-clean-pyc:
-	find . -type f -name *.pyc -delete
-
-build: clean
-	python setup.py sdist bdist_wheel
-
-release: build
-	twine upload dist/*
+.PHONY: test format lint help batch clean
 
 test:
-	pytest $(COV)
+	uvx pytest
 
-ptw:
-	ptw -- $(COV)
+format:
+	uvx ruff format
+	uvx ruff check --select I --fix
 
-cov-report:
-	coverage report -m
+lint:
+	uvx ruff check
+
+help:
+    # github main branch includes pull#74 which is not on pypi yet
+	uvx --from git+https://github.com/Textualize/rich-cli rich README.md 
+
+batch:
+	uvx make-to-batch -i makefile -o make.bat
+	@sed -i 's/-r \/F/\/S \/F/' make.bat
+	@sed -i '/@sed/d' make.bat
+
+build:
+	uv build
+
+clean:
+	rm -r -f dist

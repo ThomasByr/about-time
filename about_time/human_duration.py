@@ -1,18 +1,16 @@
-from typing import Optional
-
 from .features import FEATURES, conv_space
 
 SPEC = (
     (1e3, 1e3, "ns", 1),
     (1e3, 1e3, "µs", 1),  # uses non-ASCII “µs” suffix.
     (1e3, 1e3, "ms", 1),
-    (60., 1., "s", 2),
+    (60.0, 1.0, "s", 2),
     # 1:01.1 (minutes in code, 1 decimal).
     # 1:01:01 (hours in code, 0 decimal).
 )
 
 
-def __human_duration(val: float, prec: Optional[int], space: str) -> str:
+def __human_duration(val: float, prec: int, space: str) -> str:
     val *= 1e9
     for size, div_next, scale, dec in SPEC:
         r = round(val, dec)
@@ -22,48 +20,48 @@ def __human_duration(val: float, prec: Optional[int], space: str) -> str:
 
         if prec is not None:
             r = round(val, prec)
-        elif r % 1. == 0.:
+        elif r % 1.0 == 0.0:
             prec = 0
-        elif (r * 10.) % 1. == 0.:
+        elif (r * 10.0) % 1.0 == 0.0:
             prec = 1
         else:
             prec = 2
-        return '{:.{}f}{}{}'.format(r, prec, space, scale)
+        return "{:.{}f}{}{}".format(r, prec, space, scale)
 
     val = round(val, 1)
-    m = val / 60.
-    if m < 60.:
-        r = val % 60.
+    m = val / 60.0
+    if m < 60.0:
+        r = val % 60.0
         if prec is not None:
             pass
-        elif r % 1. == 0.:
+        elif r % 1.0 == 0.0:
             prec = 0
 
         if prec == 0:
-            return '{:.0f}:{:02.0f}'.format(m // 1., r)
-        return '{:.0f}:{:04.1f}'.format(m // 1., round(r, 1))
+            return f"{m // 1.0:.0f}:{r:02.0f}"
+        return f"{m // 1.0:.0f}:{round(r, 1):04.1f}"
 
-    return '{:.0f}:{:02.0f}:{:02.0f}'.format(m / 60. // 1., m % 60. // 1., val % 60. // 1.)
+    return f"{m / 60.0 // 1.0:.0f}:{m % 60.0 // 1.0:02.0f}:{val % 60.0 // 1.0:02.0f}"
 
 
 def fn_human_duration(space: bool):
-    def run(val, prec: Optional[int]):
+    def run(val, prec: int):
         return __human_duration(val, prec, space)
 
     space = conv_space(space)
     return run
 
 
-class HumanDuration(object):
+class HumanDuration:
     def __init__(self, value):
-        assert value >= 0.
+        assert value >= 0.0
         self._value = value
 
     @property
     def value(self):
         return self._value
 
-    def as_human(self, prec: Optional[int] = None) -> str:
+    def as_human(self, prec: int = None) -> str:
         """Return a beautiful representation of this duration.
         It dynamically calculates the best scale to use.
 
@@ -80,7 +78,7 @@ class HumanDuration(object):
         return self.as_human()
 
     def __repr__(self):  # pragma: no cover
-        return 'HumanDuration{{ value={} }} -> {}'.format(self._value, self)
+        return f"HumanDuration{{ value={self._value} }} -> {self}"
 
     def __eq__(self, other):
         return self.__str__() == other
