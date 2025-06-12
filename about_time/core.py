@@ -19,7 +19,7 @@ def about_time(it: Iterable[T]) -> "HandleStats": ...
 def about_time() -> "AbstractContextManager[Handle]": ...
 
 
-def about_time(func_or_it: Callable[P, T] | Iterable[T] | None=None, *args, **kwargs):
+def about_time(func_or_it: Callable[P, T] | Iterable[T] | None = None, *args, **kwargs):
     """Measure timing and throughput of code blocks, with beautiful
     human friendly representations.
 

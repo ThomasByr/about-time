@@ -255,6 +255,7 @@ The `throughput_human` unit changes seamlessly from per-second, per-minute, per-
 
 
 ## Changelog highlights:
+- 4.2.2: typing
 - 4.2.1: makes fixed precision actually gain more resolution, when going from a default 1 to 2 decimals
 - 4.2.0: support for fixed precision, useful when one needs output without varying lengths; official Python 3.11 support
 - 4.1.0: enable to cache features within closures, to improve performance for https://github.com/rsalmei/alive-progress
