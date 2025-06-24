@@ -1,3 +1,4 @@
+import sys
 import time
 from collections.abc import Callable, Iterable
 from contextlib import AbstractContextManager, contextmanager
@@ -104,7 +105,17 @@ class Handle:
         return HumanDuration(self.duration)
 
 
-class HandleResult[T](Handle):
+if sys.version_info < (3, 12):  # noqa: UP036
+    from typing import Generic
+
+    class _HandleResult(Generic[T], Handle): ...
+
+else:
+
+    class _HandleResult[T](Handle): ...
+
+
+class HandleResult(_HandleResult[T]):
     def __init__(self, timings, result: T):
         super().__init__(timings)
         self.__result = result

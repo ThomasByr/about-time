@@ -55,7 +55,7 @@ exclude = [
 line-length = 110
 
 # Assume Python 3.10
-target-version = "py310"
+target-version = "py312"
 
 # Ignore `E402` (import violations) in all `__init__.py` files.
 [tool.ruff.lint.per-file-ignores]
